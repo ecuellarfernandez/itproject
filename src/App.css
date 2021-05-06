@@ -33,7 +33,7 @@
 .gallery img {
 	width: 100%;
 	height: 100%;
-	animation: fade 4s forwards;
+	animation: fade 0.5s forwards;
 }
 
 @keyframes fade {

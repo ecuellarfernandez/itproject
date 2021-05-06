@@ -1,31 +1,20 @@
 import React, {useState, useEffect, useRef} from "react";
 import "./App.css";
-const imgPerPage = 10;
 
 function App() {
-	const [allImages, setAllImages] = useState(null);
-	const [images, setImages] = useState([]);
-	const [imgCount, setImgCount] = useState(0);
+	const [allImages, setAllImages] = useState([]);
+	const [imgCount, setImgCount] = useState(1);
 
 	const fetchData = async () => {
 		try {
-			const response = await fetch("https://jsonplaceholder.typicode.com/photos");
+			const response = await fetch(
+				`https://jsonplaceholder.typicode.com/photos?_page=${imgCount}&_limit=10`
+			);
 			const data = await response.json();
-			setAllImages(data);
+			setImgCount((prev) => prev + 1);
+			setAllImages((prev) => [...prev, ...data]);
 		} catch (error) {
 			console.error("error", error);
-		}
-	};
-
-	useEffect(() => {
-		fetchData();
-	}, []);
-
-	const moreImages = () => {
-		if (allImages) {
-			const newImages = allImages.slice(imgCount, imgCount + imgPerPage);
-			setImgCount((prev) => prev + newImages.length);
-			setImages((prev) => [...prev, ...newImages]);
 		}
 	};
 
@@ -33,7 +22,7 @@ function App() {
 
 	const observerCallback = (entries) => {
 		const firstEntry = entries[0];
-		if (firstEntry.isIntersecting) moreImages();
+		if (firstEntry.isIntersecting) fetchData();
 	};
 
 	const observerOptions = {threshold: 1};
@@ -56,13 +45,13 @@ function App() {
 	}, [containerToIntersect, observerOptions]);
 
 	const onClickRemove = (id) => {
-		const newImages = images.filter((item) => item.id !== id);
-		setImages(newImages);
+		const newImages = allImages.filter((item) => item.id !== id);
+		setAllImages(newImages);
 	};
 
 	return (
 		<ul className="gallery">
-			{images.map((i) => {
+			{allImages.map((i) => {
 				return (
 					<li key={i.id} onClick={() => onClickRemove(i.id)}>
 						<img alt={i.title} src={i.url} width="200" height="200" />
